@@ -4,7 +4,7 @@ import torch
 
 from lhotse import validate
 from lhotse.cut import CutSet
-from lhotse.dataset.input_strategies import InputStrategy, PrecomputedFeatures
+from lhotse.dataset.input_strategies import PrecomputedFeatures
 from lhotse.utils import ifnone
 
 
@@ -62,7 +62,7 @@ class K2VadDataset(torch.utils.data.Dataset):
         return_cuts: bool = False,
         cut_transforms: List[Callable[[CutSet], CutSet]] = None,
         input_transforms: List[Callable[[torch.Tensor], torch.Tensor]] = None,
-        input_strategy: InputStrategy = PrecomputedFeatures(),
+        input_strategy = PrecomputedFeatures(),
     ):
         """
         K2 VAD IterableDataset constructor.
@@ -100,6 +100,7 @@ class K2VadDataset(torch.utils.data.Dataset):
         """
         # Collect the cuts that will form a batch, satisfying the criteria of max_cuts and max_frames.
         # The returned object is a CutSet that we can keep on modifying (e.g. padding, mixing, etc.)
+        cut_ids = cut_ids.ids
         cuts = self.cuts.subset(cut_ids=cut_ids)
         # Sort the cuts by duration so that the first one determines the batch time dimensions.
         cuts = cuts.sort_by_duration(ascending=False)
@@ -124,9 +125,12 @@ class K2VadDataset(torch.utils.data.Dataset):
                 "sequence_idx": torch.Tensor(range(inputs.shape[0])),
                 "is_voice": masks,
                 "start_frame": torch.zeros(inputs.shape[0]),
+                #"duration": torch.Tensor(
+                #    [masks.shape[1] for _ in range(masks.shape[0])]
+                #),
                 "duration": torch.Tensor(
-                    [masks.shape[1] for _ in range(masks.shape[0])]
-                ),
+                    [masks[ii].size()[0] - torch.count_nonzero(masks[ii]) for ii in range(masks.shape[0])]
+                )
             },
         }
         if self.return_cuts:

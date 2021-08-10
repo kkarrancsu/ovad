@@ -15,7 +15,7 @@ from pathlib import Path
 
 import torch
 from k2 import Fsa
-from lhotse import Cut
+from lhotse.cut import Cut
 
 
 @dataclass

@@ -190,12 +190,13 @@ def main():
     start_epoch = 0
     num_epochs = 100
 
-    exp_dir = "exp-tl1a-adam-xent"
+    exp_dir = "/exp/kkarra/ovad/ami/exp-tl1a-adam-xent"
     setup_logger("{}/log/log-train".format(exp_dir))
     tb_writer = SummaryWriter(log_dir=f"{exp_dir}/tensorboard")
 
     # load dataset
-    feature_dir = Path("exp/data")
+    #feature_dir = Path("exp/data")
+    feature_dir = Path('/exp/kkarra/ovad/ami')
     logging.info("About to get train cuts")
     cuts_train = CutSet.from_json(feature_dir / "cuts_train.json.gz")
     logging.info("About to get dev cuts")

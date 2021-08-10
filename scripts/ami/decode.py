@@ -65,9 +65,10 @@ def decode(
 
         # at entry, feature is [N, T, C]
         feature = feature.permute(0, 2, 1)  # now feature is [N, C, T]
+        
         with torch.no_grad():
             nnet_output = model(feature)
-
+    
         # nnet_output is [N, C, T]
         nnet_output = nnet_output.permute(0, 2, 1)  # now nnet_output is [N, T, C]
 
@@ -84,7 +85,8 @@ def decode(
         # best_paths is an FsaVec, and each of its FSAs is a linear FSA
         references = supervisions["is_voice"][indices]
         for i in range(references.shape[0]):
-            ref = references[i, :]
+            dur = supervisions['duration'][i].to(int)
+            ref = references[i, 0:dur]
             hyp = k2.arc_sort(best_paths[i]).arcs_as_tensor()[:-1, 2].detach().cpu()
             assert (
                 ref.shape[0] == hyp.shape[0]
@@ -104,7 +106,7 @@ def decode(
             )
 
         num_cuts += supervisions["is_voice"].shape[0]
-
+        
     return results
 
 
@@ -117,7 +119,7 @@ def main():
     # Reserve the GPU with a dummy variable
     reserve_variable = torch.ones(1).to(device)
 
-    exp_dir = Path("exp-tl1a-adam-xent")
+    exp_dir = Path("/exp/kkarra/ovad/ami/exp-tl1a-adam-xent")
     setup_logger("{}/log/log-decode".format(exp_dir), log_level="debug")
 
     if not os.path.exists(exp_dir / "HCLG.pt"):
@@ -147,7 +149,8 @@ def main():
         HCLG = k2.Fsa.from_dict(d)
 
     # load dataset
-    feature_dir = Path("exp/data")
+    #feature_dir = Path("exp/data")
+    feature_dir = Path('/exp/kkarra/ovad/ami')
     logging.info("About to get test cuts")
     cuts_test = CutSet.from_json(feature_dir / "cuts_test.json.gz")
 

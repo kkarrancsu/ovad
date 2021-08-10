@@ -17,8 +17,8 @@ from lhotse.recipes import download_ami, prepare_ami
 # Torch's multithreaded behavior needs to be disabled or it wastes a lot of CPU and
 # slow things down.  Do this outside of main() in case it needs to take effect
 # even when we are not invoking the main (e.g. when spawning subprocesses).
-torch.set_num_threads(1)
-torch.set_num_interop_threads(1)
+#torch.set_num_threads(1)
+#torch.set_num_interop_threads(1)
 
 
 @contextmanager
@@ -74,14 +74,17 @@ def get_parser():
 def main():
     args = get_parser().parse_args()
 
-    corpus_dir = locate_corpus(
-        Path("/export/corpora5/AMI/amicorpus"),
-    )
-    annotations_dir = Path("/export/c07/draj")
+    ##corpus_dir = locate_corpus(
+    ##    Path("/export/corpora5/AMI/amicorpus"),
+    ##)
+    ##annotations_dir = Path("/export/c07/draj")
+    corpus_dir = locate_corpus(Path("/export/common/data/corpora/amicorpus"))
+    annotations_dir= Path("/exp/kkarra/ovad/ami")
 
-    download_ami(corpus_dir, annotations_dir=annotations_dir, mic="sdm")
+    #download_ami(corpus_dir, annotations_dir=annotations_dir, mic="sdm")
 
-    output_dir = Path("exp/data")
+    ##output_dir = Path("exp/data")
+    output_dir = Path("/exp/kkarra/ovad/ami")
 
     print("AMI manifest preparation:")
     ami_manifests = prepare_ami(
